@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eegproc"
+version = "0.1.0"
+description = "EEG signal processing from scratch: read any EEG file, preprocess, analyse and find which channels perform best."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "eegproc contributors" }]
+keywords = ["EEG", "signal processing", "neuroscience", "BCI", "EDF", "channel quality"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = ["numpy>=1.22", "scipy>=1.8", "matplotlib>=3.5"]
+
+[project.optional-dependencies]
+formats = ["h5py", "pyxdf", "mne>=1.4"]
+yaml = ["pyyaml"]
+pandas = ["pandas"]
+all = ["h5py", "pyxdf", "mne>=1.4", "pyyaml", "pandas"]
+dev = ["pytest>=7", "h5py", "pyyaml", "pandas", "mne>=1.4", "edfio", "pybv", "eeglabio"]
+
+[project.scripts]
+eegproc = "eegproc.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["eegproc*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["ignore::DeprecationWarning:mne.*"]
