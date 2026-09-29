@@ -1,4 +1,4 @@
-# EEG Signal Processing (`eegproc`)
+# EEG Analysis (`eegproc`)
 
 A Python toolkit that reads EEG recordings in **any common file format**, gives
 you clean access to every **channel**, runs a complete **processing pipeline**,
@@ -31,14 +31,28 @@ installed.
 
 ## Install
 
+**Google Colab (nothing to install on your computer).** Open the ready-made notebook:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rsd21/eeg-analysis/blob/main/notebooks/eeg_analysis_colab.ipynb)
+
+or put this in the first cell of any Colab notebook:
+
+```python
+!pip install -q git+https://github.com/rsd21/eeg-analysis.git
+```
+
+**Your own computer** (Python 3.9 or newer):
+
 ```bash
-git clone <this repository>
-cd EEg-singnal-processing-
+git clone https://github.com/rsd21/eeg-analysis.git
+cd eeg-analysis
 pip install -e .              # core: numpy, scipy, matplotlib
 pip install -e ".[all]"       # optional: h5py, pyxdf, mne, pyyaml, pandas
 ```
 
-Python 3.9 or newer.
+On Windows, install Python from [python.org](https://www.python.org/downloads/)
+with "Add python.exe to PATH" ticked, and use `python -m pip install -e .` if
+`pip` is not recognised.
 
 ## Quick start (Python)
 
@@ -206,7 +220,8 @@ eegproc/
   datasets/       realistic EEG simulator with ground truth
   pipeline.py     JSON/YAML pipelines
   cli.py          `eegproc` command
-examples/         runnable scripts (quick start, preprocessing, channel performance, ERP, BCI, formats)
+examples/         runnable scripts (quick start, preprocessing, channel performance, ERP, BCI, formats, eye blinks)
+notebooks/        Google Colab notebook
 tests/            pytest suite, including cross-checks against MNE's readers and writers
 docs/             guides
 ```
@@ -217,6 +232,7 @@ docs/             guides
 - [docs/channel_quality.md](docs/channel_quality.md): every quality metric, its threshold and how to read the report
 - [docs/file_formats.md](docs/file_formats.md): format details, units, channel naming, partial reads
 - [examples/](examples): scripts that run end-to-end on simulated data or your own file
+- [notebooks/eeg_analysis_colab.ipynb](notebooks/eeg_analysis_colab.ipynb): load, score channels, detect and remove eye blinks, and download a report, all in Colab
 
 ## Testing
 
