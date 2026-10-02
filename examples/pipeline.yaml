@@ -1,0 +1,13 @@
+# Preprocessing pipeline for `eegproc process FILE --config examples/pipeline.yaml`
+steps:
+  - set_montage: {montage: standard_1010}
+  - filter: {l_freq: 1.0, h_freq: 40.0}          # zero-phase band-pass
+  - notch: {freqs: auto}                         # 50/60 Hz detected from the data
+  - detect_bad_channels: {method: quality}       # quality score + PREP flags
+  - interpolate_bad_channels: {}                 # spherical splines
+  - rereference: {ref: average}
+  - ica: {n_components: 0.99, eog: true}         # remove eye-blink components
+  - annotate_artifacts: {amplitude: true, muscle: true}
+  - resample: {sfreq: 128}
+output: outputs/cleaned.edf
+report: outputs/cleaned_report.html
