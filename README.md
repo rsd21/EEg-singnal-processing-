@@ -15,6 +15,9 @@ installed.
 
 ![Channel quality dashboard](docs/images/quality_dashboard.png)
 
+> **Intended use:** research and teaching. eegproc is not a medical device and has not been
+> clinically validated; do not use its output for diagnosis or treatment decisions.
+
 ---
 
 ## Contents
@@ -33,19 +36,19 @@ installed.
 
 **Google Colab (nothing to install on your computer).** Open the ready-made notebook:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rsd21/eeg-analysis/blob/main/notebooks/eeg_analysis_colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rsd21/EEg-singnal-processing-/blob/main/notebooks/eeg_analysis_colab.ipynb)
 
 or put this in the first cell of any Colab notebook:
 
 ```python
-!pip install -q git+https://github.com/rsd21/eeg-analysis.git
+!pip install -q git+https://github.com/rsd21/EEg-singnal-processing-.git
 ```
 
 **Your own computer** (Python 3.9 or newer):
 
 ```bash
-git clone https://github.com/rsd21/eeg-analysis.git
-cd eeg-analysis
+git clone https://github.com/rsd21/EEg-singnal-processing-.git
+cd EEg-singnal-processing-
 pip install -e .              # core: numpy, scipy, matplotlib
 pip install -e ".[all]"       # optional: h5py, pyxdf, mne, pyyaml, pandas
 ```
