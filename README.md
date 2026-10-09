@@ -23,6 +23,7 @@ installed.
 ## Contents
 
 - [Install](#install)
+- [AI assistant](#ai-assistant)
 - [Quick start (Python)](#quick-start-python)
 - [Quick start (command line)](#quick-start-command-line)
 - [Supported file formats](#supported-file-formats)
@@ -56,6 +57,24 @@ pip install -e ".[all]"       # optional: h5py, pyxdf, mne, pyyaml, pandas
 On Windows, install Python from [python.org](https://www.python.org/downloads/)
 with "Add python.exe to PATH" ticked, and use `python -m pip install -e .` if
 `pip` is not recognised.
+
+## AI assistant
+
+`eegproc chat` lets you talk to Claude, Anthropic's AI model, about your recording. It asks
+what kind of study you are doing (resting state, ERP, motor imagery, eye blinks, VR, ...) and
+what you want to find out, proposes a plan, runs each step with this toolkit, shows you the
+figures, and asks for your view before every decision that changes the data.
+
+```bash
+pip install "eegproc[assistant] @ git+https://github.com/rsd21/EEg-singnal-processing-.git"
+export ANTHROPIC_API_KEY=sk-ant-...   # an Anthropic API key (paid per use)
+eegproc chat recording.edf            # or: eegproc chat demo:blinks
+```
+
+[![Open the assistant in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rsd21/EEg-singnal-processing-/blob/main/notebooks/eeg_assistant_colab.ipynb)
+
+Only summaries, tables and figures go to the API, never the raw signals or patient fields.
+See [docs/assistant.md](docs/assistant.md) for setup, privacy, settings and limits.
 
 ## Quick start (Python)
 
@@ -220,17 +239,19 @@ eegproc/
   quality/        metrics, channel_quality (0-100 score), ranking (performance rankings, LDA)
   viz/            traces, spectra, topomaps, quality dashboards, ERP/ERD, connectivity
   report/         HTML report
+  assistant/      AI assistant: Claude conversation loop and the analysis tools it calls
   datasets/       realistic EEG simulator with ground truth
   pipeline.py     JSON/YAML pipelines
   cli.py          `eegproc` command
 examples/         runnable scripts (quick start, preprocessing, channel performance, ERP, BCI, formats, eye blinks)
-notebooks/        Google Colab notebook
+notebooks/        Google Colab notebooks (toolkit walkthrough, AI assistant)
 tests/            pytest suite, including cross-checks against MNE's readers and writers
 docs/             guides
 ```
 
 ## Documentation
 
+- [docs/assistant.md](docs/assistant.md): the AI assistant: setup, what it can do, privacy, settings and limits
 - [docs/processing_guide.md](docs/processing_guide.md): recommended pipelines for resting-state, ERP and BCI data, with the reasoning behind each step
 - [docs/channel_quality.md](docs/channel_quality.md): every quality metric, its threshold and how to read the report
 - [docs/file_formats.md](docs/file_formats.md): format details, units, channel naming, partial reads
