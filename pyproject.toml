@@ -22,8 +22,10 @@ dependencies = ["numpy>=1.22", "scipy>=1.8", "matplotlib>=3.5"]
 formats = ["h5py", "pyxdf", "mne>=1.4"]
 yaml = ["pyyaml"]
 pandas = ["pandas"]
-all = ["h5py", "pyxdf", "mne>=1.4", "pyyaml", "pandas"]
-dev = ["pytest>=7", "h5py", "pyyaml", "pandas", "mne>=1.4", "edfio", "pybv", "eeglabio"]
+assistant = ["anthropic>=1.13"]
+all = ["h5py", "pyxdf", "mne>=1.4", "pyyaml", "pandas", "anthropic>=1.13; python_version >= '3.10'"]
+dev = ["pytest>=7", "h5py", "pyyaml", "pandas", "mne>=1.4", "edfio", "pybv", "eeglabio",
+       "anthropic>=1.13; python_version >= '3.10'"]
 
 [project.scripts]
 eegproc = "eegproc.cli:main"
