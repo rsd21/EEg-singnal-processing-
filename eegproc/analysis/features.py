@@ -217,7 +217,7 @@ def extract_features(inst, picks="eeg", include: Iterable[str] = ("time", "spect
 
     if isinstance(inst, Epochs):
         rows = []
-        idx = inst._pick(None if picks in ("eeg", "data", None) else picks)
+        idx = inst._pick(None if picks in ("data", None) else picks)
         for e in range(inst.n_epochs):
             feats = channel_features(inst.data[e, idx], inst.sfreq, bands, include)
             for j, i in enumerate(idx):

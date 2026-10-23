@@ -45,7 +45,7 @@ or put this in the first cell of any Colab notebook:
 !pip install -q git+https://github.com/rsd21/EEg-singnal-processing-.git
 ```
 
-**Your own computer** (Python 3.9 or newer):
+**Your own computer** (Python 3.9 or newer; 3.10 or newer for the AI assistant):
 
 ```bash
 git clone https://github.com/rsd21/EEg-singnal-processing-.git
@@ -127,6 +127,7 @@ eegproc process demo.edf --config examples/pipeline.yaml -o clean.edf
 eegproc report demo.edf -o report.html
 eegproc plot demo.edf --kind bands -o bands.png   # raw | psd | sensors | bands | spectrogram | quality ...
 eegproc features demo.edf -o features.csv
+eegproc chat demo.edf                             # talk it through with the AI assistant
 ```
 
 `python -m eegproc ...` works as well.

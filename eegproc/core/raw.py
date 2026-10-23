@@ -360,17 +360,22 @@ class RawEEG:
         self.annotations = annotations.copy()
         return self
 
-    def set_montage(self, montage="standard_1010", on_missing: str = "ignore") -> "RawEEG":
+    def set_montage(self, montage="standard_1010", on_missing: str = "ignore",
+                    overwrite: bool = True) -> "RawEEG":
         """Assign electrode positions (in place) from a montage.
 
         ``montage`` may be ``'standard_1020'``, ``'standard_1010'``, a file path
         (``.elc``, ``.sfp``, ``.loc``, ``.ced``, ``.csv``/``.tsv``), a dict or a
         :class:`Montage`. Channels not found keep no position; with
-        ``on_missing='raise'`` a missing EEG channel raises an error.
+        ``on_missing='raise'`` a missing EEG channel raises an error. With
+        ``overwrite=False`` positions read from the file (digitised locations)
+        are kept and only channels without one get a template position.
         """
         mont = get_montage(montage)
         missing = []
         for name, t in zip(self.ch_names, self.ch_types):
+            if not overwrite and name in self.positions:
+                continue
             xyz = mont.get(name)
             if xyz is not None:
                 self.positions[name] = xyz

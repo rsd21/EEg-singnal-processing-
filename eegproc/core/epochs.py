@@ -21,12 +21,11 @@ def find_stim_events(signal: np.ndarray, mask: int | None = None,
     x = np.rint(np.nan_to_num(np.asarray(signal, dtype=float))).astype(np.int64)
     if mask is not None:
         x = x & int(mask)
-    # A constant offset on the trigger line (e.g. BioSemi status bits) is not an event.
-    if x.size:
+    # A trigger line that never returns to zero carries a constant offset (e.g. BioSemi
+    # status bits); its most common value is the resting level, not an event.
+    if x.size and not np.any(x == 0):
         values, counts = np.unique(x, return_counts=True)
-        baseline = values[np.argmax(counts)]
-        if baseline != 0:
-            x = np.where(x == baseline, 0, x)
+        x = np.where(x == values[np.argmax(counts)], 0, x)
     change = np.flatnonzero(np.diff(x) != 0) + 1
     if x.size and x[0] != 0:
         change = np.concatenate([[0], change])

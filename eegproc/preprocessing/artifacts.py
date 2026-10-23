@@ -6,7 +6,7 @@ import numpy as np
 from scipy import signal
 
 from ..core.annotations import Annotations
-from ..utils import mad, sliding_windows
+from ..utils import logger, mad, sliding_windows
 from .filters import filter_data
 
 FRONTAL_EOG_PROXIES = ("Fp1", "Fp2", "Fpz", "AF7", "AF8", "AF3", "AF4", "F7", "F8")
@@ -73,6 +73,10 @@ def annotate_muscle(raw, picks="eeg", threshold: float = 4.0, min_duration: floa
     nyq = raw.sfreq / 2
     if band is None:
         band = (110.0, 140.0) if nyq > 150 else (max(30.0, 0.6 * nyq), 0.9 * nyq)
+        if band[0] >= band[1]:
+            logger.warning("Sampling rate %g Hz is too low for muscle detection (needs a band above "
+                           "30 Hz); no muscle segments marked", raw.sfreq)
+            return Annotations()
     idx = raw.pick_indices(picks, exclude_bads=exclude_bads)
     x = filter_data(raw.data[idx], raw.sfreq, band[0], band[1])
     env = np.abs(signal.hilbert(x, axis=-1))

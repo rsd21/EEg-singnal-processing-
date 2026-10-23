@@ -273,7 +273,7 @@ class AnalysisSession:
                 raise ToolError(f"File not found: {path}. EEG files in {Path.cwd()}: {here or 'none'}")
             raw = read_raw(p)
         if montage != "none" and len(raw.positions) < len(raw.pick_names("eeg")):
-            raw.set_montage(montage)
+            raw.set_montage(montage, overwrite=False)
         self.raw, self.ica, self.epochs, self.quality = raw, None, None, None
         self.steps, self._undo = [], []
         notes = []

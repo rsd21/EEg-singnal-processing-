@@ -77,6 +77,14 @@ def design_fir(sfreq: float, l_freq: float | None, h_freq: float | None,
     if h_freq is not None:
         ht = _auto_transition(h_freq, sfreq, True) if h_trans == "auto" else float(h_trans)
         trans.append(ht)
+    if l_freq is not None and h_freq is not None and l_freq > h_freq:  # band-stop
+        room = (l_freq - h_freq) / 2
+        lt = min(lt, room) if l_trans == "auto" else lt
+        ht = min(ht, room) if h_trans == "auto" else ht
+        if h_freq + ht / 2 >= l_freq - lt / 2:
+            raise ValueError(f"Transition bands ({ht:g} + {lt:g} Hz) are wider than the stop band "
+                             f"{h_freq:g}-{l_freq:g} Hz; pass smaller l_trans/h_trans")
+        trans = [lt, ht]
     width = min(trans)
     numtaps = int(np.ceil(3.3 / width * sfreq))
     numtaps += 1 - numtaps % 2  # odd -> type I, works for every band type
@@ -194,7 +202,7 @@ def filter_raw(raw, l_freq: float | None, h_freq: float | None, picks="data", **
 
 
 def notch_raw(raw, freqs=50.0, picks="data", **kwargs):
-    if freqs == "auto":
+    if isinstance(freqs, str) and freqs == "auto":
         eeg = raw.pick_indices("eeg") or raw.pick_indices("data")
         freqs = detect_line_noise(raw.data[eeg], raw.sfreq)
         if freqs is None:

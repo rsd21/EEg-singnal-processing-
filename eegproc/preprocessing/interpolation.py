@@ -27,7 +27,8 @@ def interpolate_bads(raw, bads: Iterable[str] | None = None, reset_bads: bool = 
     if not bad_idx:
         logger.info("No bad EEG channels to interpolate")
         return raw.copy()
-    good_idx = [i for i in eeg if raw.ch_names[i] not in bads and raw.ch_names[i] in raw.positions]
+    unusable = set(bads) | set(raw.bads)
+    good_idx = [i for i in eeg if raw.ch_names[i] not in unusable and raw.ch_names[i] in raw.positions]
     no_pos = [raw.ch_names[i] for i in bad_idx if raw.ch_names[i] not in raw.positions]
     if no_pos:
         raise ValueError(f"Cannot interpolate {no_pos}: no electrode positions. "
