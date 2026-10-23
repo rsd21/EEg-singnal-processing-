@@ -33,6 +33,7 @@ installed.
 - [Project layout](#project-layout)
 - [Documentation](#documentation)
 - [Testing](#testing)
+- [License](#license)
 
 ## Install
 
@@ -300,3 +301,9 @@ files written by MNE, edfio and pybv are read correctly (and vice versa),
 that filters meet their specifications, that ICA recovers mixed sources,
 that interpolation reproduces smooth fields, and that the quality score and
 rankings find the ground truth planted in simulated recordings.
+
+## License
+
+MIT; see [LICENSE](LICENSE). The public recordings analysed in
+[docs/results.md](docs/results.md) are CC0 (OpenNeuro ds004362 and ds003061)
+and are downloaded on demand, not stored in this repository.
