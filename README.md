@@ -24,6 +24,7 @@ installed.
 
 - [Install](#install)
 - [AI assistant](#ai-assistant)
+- [Results on real EEG data](#results-on-real-eeg-data)
 - [Quick start (Python)](#quick-start-python)
 - [Quick start (command line)](#quick-start-command-line)
 - [Supported file formats](#supported-file-formats)
@@ -75,6 +76,33 @@ eegproc chat recording.edf            # or: eegproc chat demo:blinks
 
 Only summaries, tables and figures go to the API, never the raw signals or patient fields.
 See [docs/assistant.md](docs/assistant.md) for setup, privacy, settings and limits.
+
+## Results on real EEG data
+
+The toolkit was run on two public datasets from [OpenNeuro](https://openneuro.org)
+(CC0): 20 volunteers from the EEG Motor Movement/Imagery dataset and all 13
+volunteers of an auditory oddball study. Full methods, figures and per-subject
+tables are in [docs/results.md](docs/results.md); `python examples/real_data_openneuro.py`
+reproduces everything.
+
+| Analysis | Result |
+|---|---|
+| Alpha, eyes closed vs open | higher with eyes closed in **20 of 20** subjects, median x6.2 (p = 1.9e-6), largest over the occipital scalp |
+| Blink rate | **14.3/min** eyes open vs **2.0/min** eyes closed, fewer in 19 of 20 (p = 1.4e-4) |
+| P300 (target vs standard tones at Pz) | larger in **13 of 13** subjects, median +6.9 µV (p = 2.4e-4), peak at 422 ms |
+| Channel quality | median score 83/100; noisy temporal channels found; a flat Fp1 detected in all 13 oddball recordings |
+| Left vs right fist decoding (3 channels) | 62% for real movement (p = 0.009), 57% for imagery (not significant, p = 0.10) |
+
+![Alpha eyes open vs closed](docs/images/results/alpha_eyes_open_closed.png)
+![P300 oddball](docs/images/results/p300_oddball.png)
+
+Any public recording can be fetched the same way:
+
+```python
+from eegproc.datasets import fetch_openneuro_recording
+
+raw = ep.read_raw(fetch_openneuro_recording("ds004362", "sub-001/eeg/sub-001_task-motion_run-1_eeg.set"))
+```
 
 ## Quick start (Python)
 

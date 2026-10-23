@@ -208,12 +208,14 @@ def motor_analysis(n_sub: int, runs: tuple, task: str) -> dict:
         feats, _ = epoch_features(epochs, idx, "log_bandpower", {"mu": (8.0, 13.0), "beta": (13.0, 30.0)}, (0.5, 4.0))
         row["acc"] = cross_val_accuracy(feats.reshape(len(epochs.labels), -1), epochs.labels, n_folds=5, n_repeats=10)
         row["chance95"] = stats.binom.ppf(0.95, row["n"], 0.5) / row["n"]
-        # mu power time course at C3/C4, % change from the 1 s before the cue
+        # mu power time course at C3/C4, % change from the 1 s before the cue; the median over
+        # trials keeps a single artifact-laden trial from dominating a subject's curve
         pick = [epochs.ch_names.index(c) for c in ("C3", "C4")]
         power = filter_data(epochs.data[:, pick], epochs.sfreq, 8.0, 13.0) ** 2
         course = []
         for cond in ("left", "right"):
-            p = uniform_filter1d(power[epochs.labels == eid[cond]].mean(axis=0), int(0.25 * epochs.sfreq), axis=-1)
+            p = uniform_filter1d(np.median(power[epochs.labels == eid[cond]], axis=0), int(0.25 * epochs.sfreq),
+                                 axis=-1)
             base = p[:, epochs.times < 0].mean(axis=1, keepdims=True)
             course.append(100 * (p - base) / base)
         courses.append(course)
@@ -244,8 +246,8 @@ def fig_motor(executed: dict, imagined: dict) -> str:
                     ax.set_xlabel("Time from cue (s)")
         handles, labels = axes[0, 0].get_legend_handles_labels()
         fig.legend(handles, labels, loc="outside upper right", ncol=2, frameon=False)
-        fig.suptitle(f"Mu-band (8-13 Hz) power, mean of {len(executed['rows'])} subjects (±SEM); "
-                     "a drop below 0 is desynchronisation (ERD)", x=0.01, ha="left", fontsize=10, color=S.INK_2)
+        fig.suptitle(f"Mu-band (8-13 Hz) power (median over trials), mean of {len(executed['rows'])} subjects "
+                     "(±SEM); a drop below 0 is desynchronisation (ERD)", x=0.01, ha="left", fontsize=10, color=S.INK_2)
     return save(fig, "motor_erd.png")
 
 
@@ -416,8 +418,8 @@ the dataset.
 
 ## 1. Eyes closed vs eyes open: alpha (Berger effect)
 
-Closing the eyes increases posterior alpha (8-13 Hz) power, the first EEG effect
-ever described (Berger, 1929). Method: 1-45 Hz band-pass, average reference,
+Closing the eyes increases posterior alpha (8-13 Hz) power, one of the first EEG
+effects ever described (Berger, 1929). Method: 1-45 Hz band-pass, average reference,
 Welch spectrum, alpha power averaged over {", ".join(POSTERIOR)}.
 
 **Result:** alpha power was higher with eyes closed in **{(ratio > 1).sum()} of {n_sub}**
@@ -471,7 +473,8 @@ Lopes da Silva, 1999). Method: three runs per task joined, 1-40 Hz band-pass,
 Hjorth Laplacian, epochs -1 to 4 s around the cue (about 45 per subject), band
 power 0.5-4 s compared with the second before the cue. Decoding: shrinkage LDA
 on log mu and beta power at C3, Cz and C4 (6 features, chosen in advance),
-5-fold cross-validation repeated 10 times.
+5-fold cross-validation repeated 10 times. The time-course figure shows the
+median over trials, so a single artifact-laden trial cannot dominate it.
 
 Median ERD/ERS (negative = power drop):
 
@@ -512,9 +515,8 @@ condition, mean amplitude at Pz 300-500 ms.
 **Result:** targets produced a larger positive wave than standard tones in
 **{(d > 0).sum()} of {n_p}** subjects (median **+{np.median(d):.1f} µV**, Wilcoxon
 p = {p_text(stats.wilcoxon(d).pvalue)}); median target peak latency at Pz
-**{np.median(lat):.0f} ms**. Distractor noises:
-(median {np.median(dd):+.1f} µV vs standard). The target-minus-standard map peaks
-at {top_p300}.
+**{np.median(lat):.0f} ms**. Distractor noises: median {np.median(dd):+.1f} µV vs
+standard over the same window. The target-minus-standard map peaks at {top_p300}.
 
 ![P300]({figs['p300']})
 
