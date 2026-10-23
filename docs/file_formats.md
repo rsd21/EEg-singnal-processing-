@@ -21,7 +21,7 @@ and finally tries MNE-Python if it is installed.
 | Signal array | `raw.data`, shape `(n_channels, n_samples)`, float64 |
 | Units | EEG/EOG/ECG/EMG in **µV** whatever the file used (V, mV, µV, nV); other channels keep their unit (`raw.units`) |
 | Channel names | cleaned: `"EEG FP1-REF"` → `Fp1`, `"Fc5."` → `FC5`, `T3/T4/T5/T6` → `T7/T8/P7/P8`; bipolar labels such as `Fp1-F7` are left alone; originals in `raw.meta["original_ch_names"]` (disable with `clean_names=False`) |
-| Channel types | inferred from labels and units: `eeg`, `eog`, `ecg`, `emg`, `stim`, `resp`, `misc` (`raw.set_channel_types({...})` to correct) |
+| Channel types | inferred from labels and units: `eeg`, `eog`, `ecg`, `emg`, `stim`, `resp`, `misc` (`raw.set_channel_types({...})` to correct); a BIDS `*_channels.tsv` next to a `*_eeg.<ext>` file sets the types and bad channels |
 | Events | `raw.annotations` (onset, duration, description in seconds); trigger channels have type `stim` |
 | Metadata | `raw.meta`: file name, format, recording date, subject, original labels, filters... |
 
@@ -72,6 +72,24 @@ and finally tries MNE-Python if it is installed.
 **Through MNE** (needs `mne`): FIF, GDF, Neuroscan CNT, EGI (`.mff`, `.raw`),
 Curry, Persyst, Nicolet, eXimia, Nihon Kohden `.eeg` (when no `.vhdr`
 exists), SNIRF.
+
+### Public datasets (OpenNeuro)
+
+[OpenNeuro](https://openneuro.org) hosts hundreds of free EEG datasets, most
+under CC0, in the BIDS layout. eegproc downloads files directly (cached in
+`~/eegproc_data`, or `$EEGPROC_DATA`):
+
+```python
+from eegproc.datasets import fetch_openneuro_recording, list_openneuro_files
+
+list_openneuro_files("ds004362", "sub-001/eeg/")         # what is there, with sizes
+path = fetch_openneuro_recording("ds004362", "sub-001/eeg/sub-001_task-motion_run-1_eeg.set")
+raw = ep.read_raw(path)                                   # types and bad channels from channels.tsv
+```
+
+`fetch_openneuro_recording` also fetches the files a recording needs (BrainVision
+`.vmrk`/`.eeg`, EEGLAB `.fdt`, BIDS `channels.tsv`). See
+[results.md](results.md) for analyses of two such datasets.
 
 ## Writing
 

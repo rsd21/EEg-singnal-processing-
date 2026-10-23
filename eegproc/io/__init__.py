@@ -7,6 +7,7 @@ formats use optional packages (h5py, pyxdf, mne).
 
 from __future__ import annotations
 
+import csv
 import os
 from typing import Callable
 
@@ -138,8 +139,37 @@ def read_raw(path: str | os.PathLike, fmt: str | None = None, **kwargs) -> RawEE
         return read_with_mne(path, **kwargs)  # Nihon Kohden also uses .eeg
     reader = READERS[ext][0]
     raw = reader(path, **kwargs)
+    _apply_bids_channels(raw, path)
     raw.history.append(f"read {os.path.basename(path)}")
     return raw
+
+
+_BIDS_TYPES = {"EEG": "eeg", "EOG": "eog", "HEOG": "eog", "VEOG": "eog", "ECG": "ecg", "EMG": "emg",
+               "TRIG": "stim", "RESP": "resp", "MISC": "misc", "GSR": "misc", "TEMP": "misc", "PPG": "misc",
+               "REF": "misc", "SYSCLOCK": "misc", "AUDIO": "misc", "EYEGAZE": "misc", "PUPIL": "misc"}
+
+
+def _apply_bids_channels(raw: RawEEG, path: str) -> None:
+    """Take channel types and bad channels from a BIDS ``*_channels.tsv`` next to ``*_eeg.<ext>``."""
+    stem = os.path.splitext(path)[0]
+    tsv = stem[:-4] + "_channels.tsv" if stem.endswith("_eeg") else None
+    if tsv is None or not os.path.exists(tsv):
+        return
+    with open(tsv, newline="", encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh, delimiter="\t"))
+    lookup = {n.lower(): n for n in raw.ch_names}
+    types, bads = {}, []
+    for row in rows:
+        name = lookup.get(str(row.get("name", "")).strip().lower())
+        kind = _BIDS_TYPES.get(str(row.get("type", "")).strip().upper())
+        if name is None:
+            continue
+        if kind is not None and kind != raw.get_channel_type(name):
+            types[name] = kind
+        if str(row.get("status", "")).strip().lower() == "bad":
+            bads.append(name)
+    raw.set_channel_types(types)
+    raw.add_bads(bads)
 
 
 def write_raw(raw: RawEEG, path: str | os.PathLike, fmt: str | None = None, **kwargs) -> str:

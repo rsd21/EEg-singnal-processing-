@@ -23,7 +23,7 @@ from ..analysis import CONNECTIVITY_METHODS, compute_connectivity, compute_psd, 
 from ..core.channels import CHANNEL_TYPES
 from ..core.epochs import Epochs, find_events, make_fixed_length_epochs
 from ..core.raw import RawEEG
-from ..datasets import simulate_eeg
+from ..datasets import fetch_openneuro_recording, simulate_eeg
 from ..io import read_raw
 from ..preprocessing import (ICA, annotate_artifacts, bad_time_fraction, bipolar_reference, detect_line_noise,
                              filter_data, find_blinks, laplacian)
@@ -251,10 +251,14 @@ class AnalysisSession:
 
     # ------------------------------------------------------------ data
     @_tool("""Load an EEG recording (EDF/EDF+, BDF, BrainVision .vhdr, CSV/TSV/TXT, MATLAB .mat,
-           EEGLAB .set, .npz, HDF5, XDF, and through MNE: FIF, GDF, CNT, MFF ...). Use 'demo:resting',
-           'demo:blinks', 'demo:oddball' or 'demo:motor_imagery' for a simulated recording when the user
-           has no file. Replaces the current data and clears the processing history.""",
-           {"path": _p("string", "File path, or demo:<kind>"),
+           EEGLAB .set, .npz, HDF5, XDF, and through MNE: FIF, GDF, CNT, MFF ...). When the user has no
+           file, use 'demo:resting', 'demo:blinks', 'demo:oddball' or 'demo:motor_imagery' for simulated
+           data, or a real public recording from OpenNeuro: 'openneuro:<dataset>/<file>', e.g.
+           'openneuro:ds004362/sub-001/eeg/sub-001_task-motion_run-1_eeg.set' (eyes open; run-2 is eyes
+           closed, runs 4/8/12 imagined left/right fist) or
+           'openneuro:ds003061/sub-001/eeg/sub-001_task-P300_run-1_eeg.set' (auditory oddball, 64 MB).
+           Replaces the current data and clears the processing history.""",
+           {"path": _p("string", "File path, demo:<kind> or openneuro:<dataset>/<file>"),
             "montage": _p("string", "Electrode layout for channels without positions: 'standard_1010', "
                                     "'standard_1020' or 'none'. Default standard_1010.")},
            ("path",))
@@ -264,6 +268,11 @@ class AnalysisSession:
             if kind not in DEMOS:
                 raise ToolError(f"Unknown demo '{kind}'. Choose from {', '.join(DEMOS)}.")
             raw = simulate_eeg(**DEMOS[kind])
+        elif path.startswith("openneuro:"):
+            dataset, _, rel = path[len("openneuro:"):].partition("/")
+            if not rel:
+                raise ToolError("Use openneuro:<dataset>/<file path inside the dataset>.")
+            raw = read_raw(fetch_openneuro_recording(dataset, rel))
         else:
             p = Path(path).expanduser()
             if not p.exists():

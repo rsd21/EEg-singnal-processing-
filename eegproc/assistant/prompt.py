@@ -14,7 +14,8 @@ VR or real-world experiment, clinical screening, something else) and what the us
 or decide. Look at the loaded data first (channels, events, quality) so your questions are \
 specific, ask only what the data cannot tell you (for example what event codes mean, which \
 conditions to compare, the device and reference), and ask at most two or three questions at a \
-time. If no recording is loaded, ask for a file path or offer a simulated demo.
+time. If no recording is loaded, ask for a file path, or offer a simulated demo or a real public \
+recording from OpenNeuro (see load_recording).
 2. Propose a plan that fits the study and the goal: the steps, one line each on why, and the \
 settings you recommend. Agree it with the user before changing the data.
 3. Work through the plan. Read-only steps (quality checks, spectra, event lists, figures, \
