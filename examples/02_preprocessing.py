@@ -19,7 +19,7 @@ os.makedirs(OUT, exist_ok=True)
 
 if len(sys.argv) > 1:
     raw = ep.read_raw(sys.argv[1])
-    raw.set_montage("standard_1010")
+    raw.set_montage("standard_1010", overwrite=False)
 else:
     raw = ep.simulate_eeg(duration=180, montage="32", bad_channels={"T8": "noisy", "O2": "flat"},
                           eog=True, seed=1)

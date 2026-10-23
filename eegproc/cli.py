@@ -19,7 +19,7 @@ def _read(args):
     raw = read_raw(args.file, fmt=getattr(args, "format", None), **kwargs)
     montage = getattr(args, "montage", None)
     if montage and montage.lower() != "none":
-        raw.set_montage(montage)
+        raw.set_montage(montage, overwrite=False)
     return raw
 
 

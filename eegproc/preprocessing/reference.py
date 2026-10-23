@@ -90,7 +90,7 @@ def bipolar_reference(raw, pairs: Iterable[tuple[str, str]] | str = "double_bana
     """
     if isinstance(pairs, str):
         pairs = {"double_banana": DOUBLE_BANANA, "transverse": TRANSVERSE}[pairs.lower()]
-    rows, names, used = [], [], set()
+    rows, names, used, sources = [], [], set(), []
     for a, c in pairs:
         try:
             ia, ic = raw.channel_index(a), raw.channel_index(c)
@@ -100,6 +100,7 @@ def bipolar_reference(raw, pairs: Iterable[tuple[str, str]] | str = "double_bana
             continue
         rows.append(raw.data[ia] - raw.data[ic])
         names.append(f"{raw.ch_names[ia]}-{raw.ch_names[ic]}")
+        sources.append((raw.ch_names[ia], raw.ch_names[ic]))
         used.update((ia, ic))
     if not rows:
         raise ValueError("None of the bipolar pairs are present in the recording")
@@ -108,16 +109,20 @@ def bipolar_reference(raw, pairs: Iterable[tuple[str, str]] | str = "double_bana
     data = np.array(rows)
     ch_names, ch_types, units = names, ["eeg"] * len(names), ["uV"] * len(names)
     positions = {}
-    for n, (a, c) in zip(names, [n.split("-", 1) for n in names]):
+    bads = []
+    for n, (a, c) in zip(names, sources):
         if a in raw.positions and c in raw.positions:
             positions[n] = (raw.positions[a] + raw.positions[c]) / 2
+        if a in raw.bads or c in raw.bads:
+            bads.append(n)
     if keep_others:
         others = [i for i in range(raw.n_channels) if raw.ch_types[i] != "eeg"]
         data = np.vstack([data, raw.data[others]]) if others else data
         ch_names = ch_names + [raw.ch_names[i] for i in others]
         ch_types = ch_types + [raw.ch_types[i] for i in others]
         units = units + [raw.units[i] for i in others]
-    out = RawEEG(data, raw.sfreq, ch_names, ch_types, units, raw.annotations, positions,
+        bads += [raw.ch_names[i] for i in others if raw.ch_names[i] in raw.bads]
+    out = RawEEG(data, raw.sfreq, ch_names, ch_types, units, raw.annotations, positions, bads,
                  meta=dict(raw.meta), history=list(raw.history))
     out.meta["reference"] = "bipolar"
     out.history.append(f"bipolar montage ({len(names)} derivations)")

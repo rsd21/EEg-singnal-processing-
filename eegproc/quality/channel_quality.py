@@ -210,18 +210,23 @@ def assess_channel_quality(raw, picks="eeg", line_freq: float | str | None = "au
     names = [raw.ch_names[i] for i in idx]
     sfreq = raw.sfreq
     x = np.nan_to_num(raw.data[idx].astype(float))
+    chunks = [x]
     if max_seconds is not None and x.shape[1] > max_seconds * sfreq:
-        x = _subsample(x, sfreq, max_seconds)
+        chunks = _chunks(x, sfreq, max_seconds)
+        x = np.concatenate(chunks, axis=1)
+    xd = np.concatenate([c - c.mean(axis=1, keepdims=True) for c in chunks], axis=1)
     duration = x.shape[1] / sfreq
     if duration < 10:
         logger.warning("Only %.1f s of data; quality metrics will be rough", duration)
     if isinstance(line_freq, str) and line_freq == "auto":
-        line_freq = detect_line_noise(x, sfreq) if duration >= 2 else None
+        line_freq = detect_line_noise(xd, sfreq) if duration >= 2 else None
 
     n_ch = len(names)
-    xh = filter_data(x, sfreq, 1.0, None)
-    xb = filter_data(x, sfreq, 1.0, min(40.0, 0.45 * sfreq))
-    freqs, p = M.psd(x - x.mean(axis=1, keepdims=True), sfreq, window_sec=4.0)
+    # Each chunk is filtered (and its offset removed) on its own: filtering across the joins
+    # would ring at every offset step and be scored as drift and artifacts.
+    xh = np.concatenate([filter_data(c, sfreq, 1.0, None) for c in chunks], axis=1)
+    xb = np.concatenate([filter_data(c, sfreq, 1.0, min(40.0, 0.45 * sfreq)) for c in chunks], axis=1)
+    freqs, p = M.psd(xd, sfreq, window_sec=4.0)
 
     amplitude = M.robust_std(xb)
     flat = M.flat_fraction(xh, sfreq, window, flat_threshold)
@@ -252,7 +257,7 @@ def assess_channel_quality(raw, picks="eeg", line_freq: float | str | None = "au
         hf_z[alive] = robust_zscore(np.nan_to_num(ratio[alive]))
     snr = M.snr_db(freqs, p, sfreq, line_freq)
     line_db = M.line_noise_db(freqs, p, line_freq)
-    drift = M.drift_db(x, xb, xh)
+    drift = M.drift_db(x, xb, xh)  # offset changes between chunks are real drift
     drift_ref = float(np.median(drift[alive])) if alive.any() else 0.0
     badwin = M.bad_window_fraction(xh, sfreq, window, ptp_threshold)
     kurt = M.local_kurtosis(xb, neighbors)
@@ -262,9 +267,14 @@ def assess_channel_quality(raw, picks="eeg", line_freq: float | str | None = "au
 
     prep_flags: dict[str, list[str]] = {}
     if use_prep and n_ch >= 3:
+        from ..core.raw import RawEEG
         from ..preprocessing.bad_channels import find_bad_channels
 
-        prep = find_bad_channels(raw, picks=idx, random_state=0)
+        if len(chunks) > 1:  # same subsample as the other metrics, not the whole recording
+            sub = RawEEG(xd, sfreq, names, [raw.ch_types[i] for i in idx], positions=positions)
+            prep = find_bad_channels(sub, picks=list(range(n_ch)), random_state=0)
+        else:
+            prep = find_bad_channels(raw, picks=idx, random_state=0)
         prep_flags = prep.reasons()
 
     rows = []
@@ -330,8 +340,9 @@ def assess_channel_quality(raw, picks="eeg", line_freq: float | str | None = "au
     return ChannelQualityReport(rows, info, positions)
 
 
-def _subsample(x: np.ndarray, sfreq: float, max_seconds: float, n_chunks: int = 30) -> np.ndarray:
-    """Evenly spaced chunks totalling ``max_seconds`` (keeps start, middle and end)."""
+def _chunks(x: np.ndarray, sfreq: float, max_seconds: float, n_chunks: int = 30) -> list[np.ndarray]:
+    """Evenly spaced chunks of at least 30 s totalling ``max_seconds`` (start, middle and end)."""
+    n_chunks = int(max(1, min(n_chunks, max_seconds // 30)))
     chunk = int(max_seconds * sfreq / n_chunks)
     starts = np.linspace(0, x.shape[1] - chunk, n_chunks).astype(int)
-    return np.concatenate([x[:, s: s + chunk] for s in starts], axis=1)
+    return [x[:, s: s + chunk] for s in starts]

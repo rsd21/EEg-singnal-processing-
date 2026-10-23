@@ -22,7 +22,7 @@ os.makedirs(OUT, exist_ok=True)
 
 if len(sys.argv) > 1:
     raw = ep.read_raw(sys.argv[1])
-    raw.set_montage("standard_1010")
+    raw.set_montage("standard_1010", overwrite=False)
     conditions = sys.argv[2:4] if len(sys.argv) >= 4 else None
 else:
     from eegproc.datasets import simulate_epochs_dataset

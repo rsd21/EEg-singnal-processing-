@@ -19,7 +19,7 @@ os.makedirs(OUT, exist_ok=True)
 
 if len(sys.argv) > 1:
     raw = ep.read_raw(sys.argv[1])                     # EDF, BDF, BrainVision, CSV, MAT, SET, ...
-    raw.set_montage("standard_1010")                   # standard positions for 10-10 channel names
+    raw.set_montage("standard_1010", overwrite=False)  # template positions where the file has none
 else:
     raw = ep.simulate_eeg(duration=120, montage="clinical19", bad_channels="default", eog=True, seed=0)
     print("Simulated recording; injected bad channels:", raw.meta["ground_truth_bads"])
