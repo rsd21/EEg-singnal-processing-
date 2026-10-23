@@ -18,8 +18,8 @@ the dataset.
 
 ## 1. Eyes closed vs eyes open: alpha (Berger effect)
 
-Closing the eyes increases posterior alpha (8-13 Hz) power, the first EEG effect
-ever described (Berger, 1929). Method: 1-45 Hz band-pass, average reference,
+Closing the eyes increases posterior alpha (8-13 Hz) power, one of the first EEG
+effects ever described (Berger, 1929). Method: 1-45 Hz band-pass, average reference,
 Welch spectrum, alpha power averaged over O1, Oz, O2, PO7, PO3, POz, PO4, PO8.
 
 **Result:** alpha power was higher with eyes closed in **20 of 20**
@@ -78,7 +78,8 @@ Lopes da Silva, 1999). Method: three runs per task joined, 1-40 Hz band-pass,
 Hjorth Laplacian, epochs -1 to 4 s around the cue (about 45 per subject), band
 power 0.5-4 s compared with the second before the cue. Decoding: shrinkage LDA
 on log mu and beta power at C3, Cz and C4 (6 features, chosen in advance),
-5-fold cross-validation repeated 10 times.
+5-fold cross-validation repeated 10 times. The time-course figure shows the
+median over trials, so a single artifact-laden trial cannot dominate it.
 
 Median ERD/ERS (negative = power drop):
 
@@ -124,9 +125,8 @@ condition, mean amplitude at Pz 300-500 ms.
 **Result:** targets produced a larger positive wave than standard tones in
 **13 of 13** subjects (median **+6.9 µV**, Wilcoxon
 p = 2.4e-4); median target peak latency at Pz
-**422 ms**. Distractor noises:
-(median +1.7 µV vs standard). The target-minus-standard map peaks
-at Pz.
+**422 ms**. Distractor noises: median +1.7 µV vs
+standard over the same window. The target-minus-standard map peaks at Pz.
 
 ![P300](images/results/p300_oddball.png)
 
