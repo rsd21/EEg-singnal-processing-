@@ -1,0 +1,10 @@
+{
+  "steps": [
+    {"filter": {"l_freq": 0.5, "h_freq": 45.0}},
+    {"notch": {"freqs": 50}},
+    {"detect_bad_channels": {"method": "prep"}},
+    {"interpolate_bad_channels": {}},
+    {"rereference": {"ref": "average"}}
+  ],
+  "output": "outputs/cleaned.vhdr"
+}
