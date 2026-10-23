@@ -89,3 +89,22 @@ def test_quality_of_long_recordings_is_not_hurt_by_subsampling():
     continuous = raw.crop(150, 450).assess_quality()
     assert chunked.bad_channels == continuous.bad_channels == ["O2"]
     assert abs(np.median(chunked.scores) - np.median(continuous.scores)) < 5
+
+
+def test_auxiliary_channel_names_are_not_eeg():
+    from eegproc.core.channels import infer_channel_type
+
+    assert [infer_channel_type(n) for n in ("EXG1", "Erg2", "Plet", "GSR1", "Temp")] == ["misc"] * 5
+
+
+def test_bids_channels_tsv_sets_types_and_bads(tmp_path):
+    from eegproc.io import read_raw
+
+    raw = simulate_eeg(5, montage="standard_1020", eog=False, seed=0)
+    path = raw.save(tmp_path / "sub-01_task-rest_eeg.edf")
+    rows = ["name\ttype\tunits\tstatus"] + [f"{n.lower()}\tEEG\tuV\tgood" for n in raw.ch_names]
+    rows[1] = f"{raw.ch_names[0]}\tEOG\tuV\tgood"
+    rows[2] = f"{raw.ch_names[1]}\tEEG\tuV\tbad"
+    (tmp_path / "sub-01_task-rest_channels.tsv").write_text("\n".join(rows) + "\n")
+    back = read_raw(path)
+    assert back.get_channel_type(raw.ch_names[0]) == "eog" and back.bads == [raw.ch_names[1]]

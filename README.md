@@ -252,6 +252,7 @@ docs/             guides
 
 ## Documentation
 
+- [docs/results.md](docs/results.md): results on real public EEG recordings (alpha, blinks, channel quality, motor ERD and decoding, P300), with the script that reproduces them
 - [docs/assistant.md](docs/assistant.md): the AI assistant: setup, what it can do, privacy, settings and limits
 - [docs/processing_guide.md](docs/processing_guide.md): recommended pipelines for resting-state, ERP and BCI data, with the reasoning behind each step
 - [docs/channel_quality.md](docs/channel_quality.md): every quality metric, its threshold and how to read the report

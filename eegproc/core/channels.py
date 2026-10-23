@@ -27,7 +27,8 @@ _TYPE_PATTERNS = [
     ("emg", re.compile(r"(emg|chin|^leg|tibial|masseter)", re.IGNORECASE)),
     ("resp", re.compile(r"(resp|thor|abdo|abd$|airflow|^flow|breath|nasal|thermistor|cannula)",
                         re.IGNORECASE)),
-    ("misc", re.compile(r"(spo2|sao2|pulse|pleth|^hr$|temp|position|light|accel|^acc|gyro|^mic|"
+    ("misc", re.compile(r"(spo2|sao2|pulse|pleth|^plet|^hr$|temp|position|light|accel|^acc|gyro|^mic|"
+                        r"^exg\d*$|^erg\d*$|"
                         r"snore|battery|^aux|gsr|eda|ppg|^[xyz]$|timestamp|counter|sample|"
                         r"photic|^sat|^pos$|^bp$|^cpap|^pap|ibi|^pr$)", re.IGNORECASE)),
 ]
