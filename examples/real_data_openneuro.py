@@ -252,17 +252,17 @@ def fig_motor(executed: dict, imagined: dict) -> str:
 
 
 def fig_decoding(executed: dict, imagined: dict) -> str:
-    ae = np.array([r["acc"] for r in executed["rows"]]) * 100
-    ai = np.array([r["acc"] for r in imagined["rows"]]) * 100
+    acc_exec = np.array([r["acc"] for r in executed["rows"]]) * 100
+    acc_imag = np.array([r["acc"] for r in imagined["rows"]]) * 100
     with S.style():
         fig, ax = plt.subplots(figsize=(6.2, 4.2), layout="constrained")
         ax.axhline(50, color=S.MUTED, lw=1, ls="--")
         ax.text(1.42, 50, "chance", va="center", fontsize=8, color=S.MUTED)
-        for a, i in zip(ae, ai):
+        for a, i in zip(acc_exec, acc_imag):
             ax.plot([0, 1], [a, i], color=S.AXIS, lw=1, zorder=1)
-        ax.scatter(np.zeros_like(ae), ae, s=36, color=OPEN_C, zorder=3, edgecolor=S.SURFACE, linewidth=1.5)
-        ax.scatter(np.ones_like(ai), ai, s=36, color=CLOSED_C, zorder=3, edgecolor=S.SURFACE, linewidth=1.5)
-        for xpos, v in ((0, ae), (1, ai)):
+        ax.scatter(np.zeros_like(acc_exec), acc_exec, s=36, color=OPEN_C, zorder=3, edgecolor=S.SURFACE, linewidth=1.5)
+        ax.scatter(np.ones_like(acc_imag), acc_imag, s=36, color=CLOSED_C, zorder=3, edgecolor=S.SURFACE, linewidth=1.5)
+        for xpos, v in ((0, acc_exec), (1, acc_imag)):
             ax.plot([xpos - 0.18, xpos + 0.18], [np.mean(v)] * 2, color=S.INK, lw=2.2, zorder=4)
         ax.set(xticks=[0, 1], xticklabels=["executed", "imagined"], xlim=(-0.4, 1.6), ylim=(25, 102),
                ylabel="Left vs right accuracy (%)")
