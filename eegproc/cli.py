@@ -211,19 +211,6 @@ def cmd_features(args) -> int:
     return 0
 
 
-def cmd_chat(args) -> int:
-    from .assistant.agent import EEGAssistant
-
-    try:
-        assistant = EEGAssistant(args.file, model=args.model, effort=args.effort, output_dir=args.output,
-                                 allow_python=not args.no_python)
-    except RuntimeError as err:
-        print(err, file=sys.stderr)
-        return 1
-    assistant.chat()
-    return 0
-
-
 def cmd_simulate(args) -> int:
     from .datasets import simulate_eeg
 
@@ -319,17 +306,6 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-o", "--output")
     p.add_argument("--include", default="time,spectral", help="time,spectral,complexity")
     p.set_defaults(func=cmd_features)
-
-    p = sub.add_parser("chat", help="talk to an AI assistant (Claude) that plans and runs the analysis; "
-                                    "needs ANTHROPIC_API_KEY and pip install 'eegproc[assistant]'")
-    p.add_argument("file", nargs="?", help="EEG file to load first, or demo:blinks / demo:resting / "
-                                           "demo:oddball / demo:motor_imagery")
-    p.add_argument("--model", default="claude-opus-5-5", help="Claude model (default claude-opus-5-5)")
-    p.add_argument("--effort", default="medium", choices=["low", "medium", "high", "xhigh", "max"],
-                   help="how much the model thinks (default medium)")
-    p.add_argument("-o", "--output", default="eeg_assistant_output", help="folder for figures and files")
-    p.add_argument("--no-python", action="store_true", help="do not offer the run_python tool")
-    p.set_defaults(func=cmd_chat)
 
     p = sub.add_parser("simulate", help="write a realistic synthetic recording (for trying things out)")
     p.add_argument("output", help="output file (.edf, .bdf, .vhdr, .csv, .npz, ...)")

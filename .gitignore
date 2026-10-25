@@ -12,6 +12,5 @@ venv/
 .DS_Store
 # generated outputs
 outputs/
-eeg_assistant_output/
 eegproc_data/
 *_report.html
